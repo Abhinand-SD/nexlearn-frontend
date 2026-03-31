@@ -13,6 +13,7 @@ export default function ExamPage() {
 
   const [examData, setExamData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -160,33 +161,50 @@ export default function ExamPage() {
   // --- Render Active Exam Dashboard ---
   const handleTestSubmit = async (answersObj: any) => {
     try {
-      setLoading(true);
+      setIsSubmitting(true);
       setError('');
       
-      const payloadArray = Object.keys(answersObj).map(questionId => {
+      const payloadArray = (examData?.questions || []).map((q: any) => {
+         const qId = q.question_id || q.id;
+         const userAnswer = answersObj[qId];
          return {
-            question_id: questionId,
-            selected_option_id: answersObj[questionId].selected_option_id
+            question_id: qId,
+            selected_option_id: userAnswer?.selected_option_id || null
          };
       });
       
       const payloadJson = JSON.stringify(payloadArray);
-      await answerService.submit(payloadJson);
+      const response = await answerService.submit(payloadJson);
       
-      router.replace('/results');
+      if (response?.success || response?.data?.success) {
+        // Inject constants onto output payload from exactly the success response scope
+        const resultsPayload = {
+          ...(response?.data || response),
+          total_marks: examData?.total_marks || 100,
+          questions_count: examData?.questions_count || 100
+        };
+        
+        sessionStorage.setItem('examResults', JSON.stringify(resultsPayload));
+        
+        router.replace('/results');
+      } else {
+        setError(response?.message || response?.data?.message || 'Failed to submit exam.');
+        setHasStarted(false); // Eject back
+      }
     } catch (err: any) {
       console.log('Submit error', err);
       // Fallback alert or state error mapping can go here if the component errors out
       setError(err?.response?.data?.message || 'Failed to submit exam.');
       setHasStarted(false); // Eject back to dashboard to display the error visually
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <ExamInterface 
       examData={examData} 
+      isSubmitting={isSubmitting}
       onLogout={handleLogout} 
       onSubmitTest={handleTestSubmit} 
     />
