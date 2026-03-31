@@ -17,6 +17,7 @@ export default function ExamPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [hasStarted, setHasStarted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchExam() {
@@ -74,34 +75,53 @@ export default function ExamPage() {
     return (
       <div className="min-h-screen bg-[#F4F8FA] font-sans flex flex-col">
         {/* Top Navbar */}
-        <header className="bg-white px-8 py-3 flex justify-between items-center shadow-sm">
-          <div className="w-24 border border-transparent" /> {/* Spacer for flex centering */}
-          
-          <div className="flex items-center space-x-2 justify-center flex-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#1A98B6" stroke="#1A98B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-              <path d="M22 10v6" />
-              <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+        <header className="bg-white px-4 md:px-8 py-3 flex justify-between items-center shadow-sm">
+          {/* Spacer for flex centering - hidden on mobile */}
+          <div className="hidden md:block w-24 border border-transparent" />
+
+          <div className="flex items-center space-x-2 justify-start md:justify-center flex-1">
+            {/* Polished Graduation Cap SVG */}
+            <svg viewBox="0 0 24 24" className="w-8 h-8 drop-shadow-md">
+              <path fill="#0993ba" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
             </svg>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-xl font-bold tracking-tight text-[#0B3A5A] leading-none">NexLearn</h1>
-              <span className="text-[10px] uppercase tracking-wider text-[#1A98B6] font-medium leading-none mt-1">futuristic learning</span>
+            <div className="flex flex-col justify-center pt-1">
+              <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text">NexLearn</h1>
+              <p className="text-[9px] font-bold tracking-widest bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text -mt-0.5">futuristic learning</p>
             </div>
           </div>
 
-          <div className="w-24 flex justify-end">
-            <button 
+          <div className="flex justify-end items-center md:w-24 shrink-0">
+            <button
               onClick={handleLogout}
-              className="bg-[#1A98B6] hover:bg-[#137b94] transition-colors text-white text-sm font-medium px-6 py-2 rounded-md"
+              className="hidden md:block bg-[#1A98B6] hover:bg-[#137b94] transition-colors text-white text-sm font-medium px-6 py-2 rounded-md"
             >
               Logout
             </button>
+            {/* Mobile Menu Toggle */}
+            <div className="md:hidden relative">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-[#0B3A5A] p-2 hover:bg-slate-100 rounded-md transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+              </button>
+              {isMobileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl py-2 border border-slate-100 z-50">
+                  <button
+                    onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                    className="w-full text-left px-5 py-2 text-red-600 hover:bg-slate-50 font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
         {/* Main Content Body */}
         <main className="flex-1 flex flex-col items-center pt-10 pb-16 px-4">
-          
+
           <h2 className="text-2xl font-medium text-slate-800 mb-6">{title}</h2>
 
           {/* Metrics Card */}
@@ -124,9 +144,9 @@ export default function ExamPage() {
           <div className="max-w-2xl w-full">
             <h3 className="text-slate-700 font-semibold mb-3">Instructions:</h3>
             {examData?.instruction ? (
-              <div 
+              <div
                 className="prose prose-sm max-w-none text-slate-500 text-[14px] prose-ol:list-decimal prose-ol:pl-4 prose-li:mb-2.5"
-                dangerouslySetInnerHTML={{ __html: examData.instruction }} 
+                dangerouslySetInnerHTML={{ __html: examData.instruction }}
               />
             ) : (
               <ol className="list-decimal list-outside ml-4 space-y-2.5 text-slate-500 text-[14px]">
@@ -146,7 +166,7 @@ export default function ExamPage() {
 
           {/* Action Footer */}
           <div className="mt-10 max-w-md w-full mx-auto">
-            <button 
+            <button
               onClick={startTest}
               className="w-full bg-[#1C2A39] hover:bg-slate-800 text-white font-medium py-3 rounded-lg transition-colors shadow-md text-base"
             >
@@ -165,19 +185,19 @@ export default function ExamPage() {
     try {
       setIsSubmitting(true);
       setError('');
-      
+
       const payloadArray = (examData?.questions || []).map((q) => {
-         const qId = q.question_id as number;
-         const userAnswer = answersObj[qId];
-         return {
-            question_id: qId,
-            selected_option_id: userAnswer?.selected_option_id || null
-         };
+        const qId = q.question_id as number;
+        const userAnswer = answersObj[qId];
+        return {
+          question_id: qId,
+          selected_option_id: userAnswer?.selected_option_id || null
+        };
       });
-      
+
       const payloadJson = JSON.stringify(payloadArray);
       const response = await answerService.submit(payloadJson);
-      
+
       if (response?.success || response?.data?.success) {
         // Inject constants onto output payload from exactly the success response scope
         const resultsPayload = {
@@ -185,9 +205,9 @@ export default function ExamPage() {
           total_marks: examData?.total_marks || 100,
           questions_count: examData?.questions_count || 100
         };
-        
+
         sessionStorage.setItem('examResults', JSON.stringify(resultsPayload));
-        
+
         router.replace('/results');
       } else {
         setError(response?.message || response?.data?.message || 'Failed to submit exam.');
@@ -205,11 +225,11 @@ export default function ExamPage() {
   };
 
   return (
-    <ExamInterface 
-      examData={examData} 
+    <ExamInterface
+      examData={examData}
       isSubmitting={isSubmitting}
-      onLogout={handleLogout} 
-      onSubmitTest={handleTestSubmit} 
+      onLogout={handleLogout}
+      onSubmitTest={handleTestSubmit}
     />
   );
 }

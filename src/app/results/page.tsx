@@ -13,6 +13,7 @@ export default function ResultsScreen() {
 
   const [results, setResults] = useState<(SubmitResponse & { total_marks?: number; questions_count?: number }) | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Auth Check
@@ -86,9 +87,9 @@ export default function ResultsScreen() {
     <div className="min-h-screen bg-[#F4F8FA] font-sans flex flex-col pt-16">
       
       {/* Navbar identical to Exam */}
-      <header className="fixed top-0 left-0 right-0 bg-white px-8 py-3 flex justify-between items-center shadow-sm z-50">
-        <div className="w-24 border border-transparent" />
-        <div className="flex items-center space-x-2 justify-center flex-1">
+      <header className="fixed top-0 left-0 right-0 bg-white px-4 md:px-8 py-3 flex justify-between items-center shadow-sm z-50">
+        <div className="hidden md:block w-24 border border-transparent" />
+        <div className="flex items-center space-x-2 justify-start md:justify-center flex-1">
           {/* Polished Graduation Cap SVG */}
           <svg viewBox="0 0 24 24" className="w-8 h-8 drop-shadow-md">
             <path fill="#0993ba" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
@@ -98,13 +99,33 @@ export default function ResultsScreen() {
              <p className="text-[9px] font-bold tracking-widest bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text -mt-0.5">futuristic learning</p>
           </div>
         </div>
-        <div className="w-24 flex justify-end">
+        <div className="flex justify-end items-center md:w-24 shrink-0">
           <button 
             onClick={handleLogout}
-            className="bg-[#1A98B6] hover:bg-[#137b94] transition-colors text-white text-sm font-medium px-6 py-2 rounded-md"
+            className="hidden md:block bg-[#1A98B6] hover:bg-[#137b94] transition-colors text-white text-sm font-medium px-6 py-2 rounded-md"
           >
             Logout
           </button>
+          
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden relative">
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-[#0B3A5A] p-2 hover:bg-slate-100 rounded-md transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            {isMobileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl py-2 border border-slate-100 z-50">
+                <button 
+                  onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                  className="w-full text-left px-5 py-2 text-red-600 hover:bg-slate-50 font-medium transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
