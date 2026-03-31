@@ -1,0 +1,48 @@
+﻿
+> nexlearn-app@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.2.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 6.4s
+  Running TypeScript ...
+npm : Failed to type 
+check.
+At line:1 char:1
++ npm run build 2>&1 | 
+Out-File -Encoding utf8 
+build_utf8.log
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo       
+       : NotSpecified:   
+  (Failed to type chec   
+ k.:String) [], Remot    
+eException
+    + FullyQualifiedErro 
+   rId : NativeCommandE  
+  rror
+ 
+
+.next/dev/types/routes.d.
+ts:58:14
+Type error: Expression 
+expected.
+
+  [90m56 |[0m   }
+  [90m57 |[0m }
+[31m[1m>[0m [90m58 
+|[0m 
+[32m'/dashboard'[0m>) {
+  [90m   |[0m          
+    [31m[1m^[0m
+  [90m59 |[0m    *   
+[36mreturn[0m <div>{pro
+ps.children}</div>
+  [90m60 |[0m    * }
+  [90m61 |[0m    * 
+[32m``[0m[32m`[0m
+Next.js build worker 
+exited with code: 1 and 
+signal: null

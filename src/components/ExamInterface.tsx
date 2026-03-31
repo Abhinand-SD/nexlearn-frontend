@@ -5,9 +5,11 @@ import Image from 'next/image';
 
 import { ExamData, OptionData } from '@/services/api';
 
+export type QuestionStatus = 'unvisited' | 'attended' | 'not_attended' | 'marked_for_review' | 'answered_and_marked';
+
 export interface AnswerState {
   selected_option_id: number | null;
-  status: string;
+  status: QuestionStatus;
 }
 
 interface ExamInterfaceProps {
@@ -36,6 +38,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
   });
 
   const [answers, setAnswers] = useState<Record<number, AnswerState>>({});
+  const [isHydrated, setIsHydrated] = useState(false);
   
   const [isComprehensionModalOpen, setIsComprehensionModalOpen] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -47,14 +50,39 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
   const questionId = currentQuestion?.question_id || currentQuestion?.id || currentIndex;
 
   useEffect(() => {
-    // Initialize unvisited status for the first question if empty
-    if (!answers[questionId]) {
+    // Hydrate state from sessionStorage on mount
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('examProgress');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.answers) setAnswers(parsed.answers);
+          if (parsed.currentIndex !== undefined) setCurrentIndex(parsed.currentIndex);
+          if (parsed.timeLeft !== undefined) setTimeLeft(parsed.timeLeft);
+        } catch (e) {
+          console.error('Failed to parse examProgress', e);
+        }
+      }
+    }
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // Save state on change, but only after hydration is complete
+    if (isHydrated && typeof window !== 'undefined') {
+      sessionStorage.setItem('examProgress', JSON.stringify({ answers, currentIndex, timeLeft }));
+    }
+  }, [answers, currentIndex, timeLeft, isHydrated]);
+
+  useEffect(() => {
+    // Initialize unvisited status for the current question if empty
+    if (isHydrated && !answers[questionId]) {
       setAnswers(prev => ({
         ...prev,
         [questionId]: { selected_option_id: null, status: 'unvisited' }
       }));
     }
-  }, [currentIndex, questionId, answers]);
+  }, [currentIndex, questionId, answers, isHydrated]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -75,10 +103,10 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
 
   const handleOptionSelect = (optionId: number) => {
     setAnswers((prev) => {
-      const currentStatus = prev[questionId as number]?.status || 'unvisited';
+      const currentStatus: QuestionStatus = prev[questionId as number]?.status || 'unvisited';
       // If we select an option, and status was just unvisited/not_attended, mark as attended
       // If it was marked_for_review, it becomes answered_and_marked
-      let newStatus = currentStatus;
+      let newStatus: QuestionStatus = currentStatus;
       if (currentStatus === 'marked_for_review') {
         newStatus = 'answered_and_marked';
       } else if (currentStatus === 'unvisited' || currentStatus === 'not_attended') {
@@ -89,7 +117,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
         ...prev,
         [questionId]: {
           selected_option_id: optionId,
-          status: newStatus as any
+          status: newStatus
         }
       };
     });
@@ -97,8 +125,8 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
 
   const handleNext = () => {
     setAnswers(prev => {
-      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' };
-      let newStatus = currentAns.status;
+      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' as QuestionStatus };
+      let newStatus: QuestionStatus = currentAns.status;
       
       // If no option selected and not marked for review -> not_attended
       if (currentAns.status === 'unvisited') {
@@ -109,7 +137,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
         ...prev,
         [questionId]: {
           ...currentAns,
-          status: newStatus as any
+          status: newStatus
         }
       };
     });
@@ -129,8 +157,8 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
 
   const handleMarkForReview = () => {
     setAnswers(prev => {
-      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' };
-      const newStatus = currentAns.selected_option_id ? 'answered_and_marked' : 'marked_for_review';
+      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' as QuestionStatus };
+      const newStatus: QuestionStatus = currentAns.selected_option_id ? 'answered_and_marked' : 'marked_for_review';
       
       return {
         ...prev,
@@ -150,7 +178,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
   const jumpToQuestion = (index: number) => {
     // Optionally mark current as not_attended before jumping if untouched
     setAnswers(prev => {
-      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' };
+      const currentAns = prev[questionId] || { selected_option_id: null, status: 'unvisited' as QuestionStatus };
       if (currentAns.status === 'unvisited') {
         return {
           ...prev,
@@ -165,6 +193,9 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
   };
 
   const handleFinalSubmit = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('examProgress');
+    }
     onSubmitTest(answers);
   };
 

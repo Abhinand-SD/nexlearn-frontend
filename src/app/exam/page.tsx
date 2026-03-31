@@ -7,6 +7,7 @@ import { questionService, authService, answerService, ExamData } from '@/service
 import { logoutUser } from '@/redux/authSlice';
 import ExamInterface, { AnswerState } from '@/components/ExamInterface';
 import { AxiosError } from 'axios';
+import Cookies from 'js-cookie';
 
 export default function ExamPage() {
   const router = useRouter();
@@ -18,6 +19,19 @@ export default function ExamPage() {
   const [error, setError] = useState('');
   const [hasStarted, setHasStarted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isTokenValid = () => {
+    const token = Cookies.get('access_token');
+    const refreshToken = Cookies.get('refresh_token');
+    if (!token && !refreshToken) {
+      // Clear any saved exam progress
+      sessionStorage.removeItem('examProgress');
+      // Redirect to login
+      router.replace('/');
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     async function fetchExam() {
@@ -47,6 +61,7 @@ export default function ExamPage() {
   };
 
   const startTest = () => {
+    if (!isTokenValid()) return;
     setHasStarted(true);
   };
 
@@ -182,6 +197,7 @@ export default function ExamPage() {
 
   // --- Render Active Exam Dashboard ---
   const handleTestSubmit = async (answersObj: Record<number, AnswerState>) => {
+    if (!isTokenValid()) return;
     try {
       setIsSubmitting(true);
       setError('');

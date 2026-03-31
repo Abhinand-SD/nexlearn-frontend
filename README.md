@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NexLearn - Interactive Exam Platform
 
-## Getting Started
+This project is a frontend implementation of the NexLearn Exam Platform, built for the Noviindus Technologies Level 1 Machine Test. It features a pixel-perfect, mobile-responsive UI with a robust, secure, and production-ready architectural foundation.
 
-First, run the development server:
+## 🚀 Tech Stack
+* **Framework:** Next.js (App Router)
+* **Language:** TypeScript (Strictly typed interfaces)
+* **Styling:** Tailwind CSS (Custom gradients, responsive design)
+* **State Management:** Redux Toolkit & React `useState`
+* **Network:** Axios (with custom interceptors)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Key Architectural Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. Enterprise-Grade Authentication Flow
+* Implemented a "Soft Check" vs "Hard Check" architecture for route guarding.
+* **Axios Interceptor:** Built a custom response interceptor that seamlessly catches `401 Unauthorized` errors, automatically requests a new access token using the `refresh_token`, and retries the failed request without disrupting the user experience.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Exam State Persistence (UX)
+* Built a custom hydration hook using `sessionStorage`. 
+* If a user accidentally refreshes the browser mid-exam, their timer, current question index, and selected answers are perfectly restored.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Defensive Data Handling
+* Fully typed API responses and payload schemas to eliminate `any` types.
+* Used safe fallbacks (`??` and `?.`) to ensure the UI never crashes, even if the backend returns missing or malformed data.
+* Dynamically calculates missing exam statistics (e.g., total questions) mathematically to prevent UI bugs.
 
-## Learn More
+### 4. SEO & Performance Optimization
+* Implemented Semantic HTML (`<header>`, `<main>`, `<article>`) for better accessibility.
+* Replaced default metadata and favicons with NexLearn branding.
+* Minimized unnecessary API calls by validating tokens locally before execution.
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 How to Run Locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Abhinand-SD/nexlearn-frontend.git

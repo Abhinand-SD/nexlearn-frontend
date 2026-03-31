@@ -102,13 +102,17 @@ export default function LoginScreen() {
                     <img src="https://flagcdn.com/in.svg" alt="India flag" className="w-5 h-auto mr-2 shadow-sm rounded-xs border border-slate-200" />
                     <span className="text-slate-800 font-medium">+91</span>
                   </div>
+                  <label htmlFor="phone-input" className="sr-only">Phone number</label>
                   <input
+                    id="phone-input"
                     type="tel"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="flex-1 px-4 py-3 outline-none text-slate-800 font-medium bg-transparent"
                     placeholder="123 4567891"
                     required
+                    aria-label="Mobile number"
+                    autoComplete="tel-national"
                   />
                 </div>
               </div>

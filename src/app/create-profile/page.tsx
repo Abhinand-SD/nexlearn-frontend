@@ -169,50 +169,56 @@ export default function CreateProfileScreen() {
 
               {/* Name Input */}
               <div className="relative">
-                <div className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
+                <label htmlFor="name-input" className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
                   Name*
-                </div>
+                </label>
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
-                  <input 
+                  <input
+                    id="name-input"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="flex-1 px-4 py-3.5 outline-none text-slate-800 font-medium bg-transparent text-sm"
                     placeholder="Enter your Full Name"
                     required
+                    autoComplete="name"
                   />
                 </div>
               </div>
 
               {/* Email Input */}
               <div className="relative">
-                <div className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
+                <label htmlFor="email-input" className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
                   Email
-                </div>
+                </label>
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
-                  <input 
+                  <input
+                    id="email-input"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="flex-1 px-4 py-3.5 outline-none text-slate-800 font-medium bg-transparent text-sm"
                     placeholder="Enter your Email Address"
+                    autoComplete="email"
                   />
                 </div>
               </div>
 
               {/* Qualification Input */}
               <div className="relative">
-                <div className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
+                <label htmlFor="qualification-input" className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 pointer-events-none">
                   Your qualification*
-                </div>
+                </label>
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
-                  <input 
+                  <input
+                    id="qualification-input"
                     type="text"
                     value={qualification}
                     onChange={(e) => setQualification(e.target.value)}
                     className="flex-1 px-4 py-3.5 outline-none text-slate-800 font-medium bg-transparent text-sm"
-                    placeholder=""
+                    placeholder="e.g. B.Tech, MBA, 12th Pass"
                     required
+                    autoComplete="off"
                   />
                 </div>
               </div>

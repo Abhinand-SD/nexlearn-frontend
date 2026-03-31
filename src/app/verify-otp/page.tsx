@@ -144,17 +144,24 @@ function VerifyOtpContent() {
 
             <form onSubmit={handleVerify} className="space-y-5">
               <div className="relative">
-                <div className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 transition-colors pointer-events-none">
+                <label 
+                  htmlFor="otp-input" 
+                  className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10 transition-colors pointer-events-none"
+                >
                   SMS code
-                </div>
+                </label>
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
                   <input
+                    id="otp-input"
                     type="text"
+                    inputMode="numeric"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     className="flex-1 px-4 py-3 outline-none text-slate-800 font-medium bg-transparent tracking-widest text-lg"
                     placeholder="123 456"
                     required
+                    aria-label="One-time password"
+                    autoComplete="one-time-code"
                   />
                 </div>
               </div>
