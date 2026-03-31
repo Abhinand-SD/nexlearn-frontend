@@ -33,4 +33,27 @@ This project is a frontend implementation of the NexLearn Exam Platform, built f
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Abhinand-SD/nexlearn-frontend.git
+   git clone [https://github.com/Abhinand-SD/nexlearn-frontend.git](https://github.com/Abhinand-SD/nexlearn-frontend.git)
+
+2. **Navigate into the directory:**
+   ```bash
+   cd nexlearn-frontend
+   ```
+3. **Install dependencies:**
+   ```bash
+   npm install
+
+4. Set up environment variables:
+   Create a file named .env.local in the root directory of the project and add the following API base URL:
+
+   ```bash
+   NEXT_PUBLIC_API_BASE_URL=[https://nexlearn.noviindusdemosites.in](https://nexlearn.noviindusdemosites.in)
+   ```
+5. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+6. Open http://localhost:3000 in your browser to view the application.
+  
+***
+Make sure you commit this final README to your main branch, check that your repository is public, and send that email! You have built a truly impressive application.
