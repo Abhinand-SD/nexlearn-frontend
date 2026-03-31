@@ -8,15 +8,16 @@ import { authService } from '@/services/api';
 import { setCredentials } from '@/redux/authSlice';
 import { RootState } from '@/redux/store';
 import Cookies from 'js-cookie';
+import { AxiosError } from 'axios';
 
 function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
-  
+
   const reduxMobile = useSelector((state: RootState) => state.auth.user?.mobile);
   const [mobile, setMobile] = useState<string>('');
-  
+
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -56,13 +57,13 @@ function VerifyOtpContent() {
       // 1. Strip all non-digit characters (including spaces that used to be plus signs)
       // 2. Grab exactly the last 10 digits
       const cleanNumber = mobile.replace(/\D/g, '').slice(-10);
-      
+
       // 3. Force the perfect format
       const formattedMobile = `+91${cleanNumber}`;
-      
+
       // 4. Call the API
       const data = await authService.verifyOtp(formattedMobile, otp);
-      
+
       if (data.success !== false) {
         if (data.login === false) {
           // NEW USER: Do NOT save tokens (they are undefined). 
@@ -79,8 +80,9 @@ function VerifyOtpContent() {
       } else {
         setError(data.message || 'Invalid OTP. Please try again.');
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Invalid OTP. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError?.response?.data?.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -96,37 +98,37 @@ function VerifyOtpContent() {
       await authService.sendOtp(formattedMobile);
       // Optional: Show a brief success message
       alert('OTP resent successfully!');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to resend OTP.');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError?.response?.data?.message || 'Failed to resend OTP.');
     }
   };
 
   return (
     <div className="min-h-screen bg-[#040D1B] flex items-center justify-center p-4 font-sans">
       <div className="max-w-[900px] w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[500px]">
-        
+
         {/* Left Panel */}
-        <div className="md:w-1/2 bg-[#293A4C] flex flex-col justify-between p-8 relative items-center text-white">
+        <div className="md:w-1/2 bg-[#0993ba] flex flex-col justify-between p-8 relative items-center text-white">
           <div className="flex flex-col items-center mt-4 z-10">
             <div className="flex items-center space-x-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-                <path d="M22 10v6" />
-                <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+              {/* Polished Graduation Cap SVG */}
+              <svg viewBox="0 0 24 24" className="w-10 h-10">
+                <path fill="white" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
               </svg>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">NexLearn</h1>
-                <p className="text-[10px] uppercase tracking-wider opacity-90 -mt-1">futuristic learning</p>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none text-white">NexLearn</h1>
+                <p className="text-[10px] font-bold tracking-widest text-white opacity-90 -mt-1">futuristic learning</p>
               </div>
             </div>
           </div>
-          
-          <div className="relative w-full aspect-square mt-8">
-            <Image 
-              src="/illustration.png" 
-              alt="Online learning" 
+
+          <div className="relative w-full h-[250px] md:h-auto md:aspect-square mt-8">
+            <Image
+              src="/login_images.jpg"
+              alt="Students learning online"
               fill
-              className="object-contain drop-shadow-lg"
+              className="object-contain md:object-cover mix-blend-normal"
               priority
             />
           </div>
@@ -137,7 +139,7 @@ function VerifyOtpContent() {
           <div className="max-w-sm w-full mx-auto">
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Enter the code we texted you</h2>
             <p className="text-sm text-slate-500 mb-8">
-              We've sent an SMS to +91 {mobile}
+              We've sent an SMS to +91 {mobile.replace(/\D/g, '').slice(-10)}
             </p>
 
             <form onSubmit={handleVerify} className="space-y-5">
@@ -146,7 +148,7 @@ function VerifyOtpContent() {
                   SMS code
                 </div>
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
-                  <input 
+                  <input
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
@@ -163,10 +165,10 @@ function VerifyOtpContent() {
                 <p className="text-[11px] text-slate-500 leading-tight">
                   Your 6 digit code is on its way. This can sometimes take a few moments to arrive.
                 </p>
-                
+
                 <div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleResend}
                     className="text-sm font-semibold text-slate-800 hover:text-slate-600 underline underline-offset-2"
                   >
@@ -193,7 +195,7 @@ function VerifyOtpContent() {
             </form>
           </div>
         </div>
-        
+
       </div>
     </div>
   );

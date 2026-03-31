@@ -8,6 +8,7 @@ import { authService } from '@/services/api';
 import { setCredentials } from '@/redux/authSlice';
 import { RootState } from '@/redux/store';
 import Cookies from 'js-cookie';
+import { AxiosError } from 'axios';
 
 export default function CreateProfileScreen() {
   const router = useRouter();
@@ -81,8 +82,9 @@ export default function CreateProfileScreen() {
       }
 
       router.push('/exam');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to create profile. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError?.response?.data?.message || 'Failed to create profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,27 +95,26 @@ export default function CreateProfileScreen() {
       <div className="max-w-[900px] w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[500px]">
         
         {/* Left Panel */}
-        <div className="md:w-1/2 bg-[#1A98B6] flex flex-col justify-between p-8 relative items-center text-white">
+        <div className="md:w-1/2 bg-[#0993ba] flex flex-col justify-between p-8 relative items-center text-white">
           <div className="flex flex-col items-center mt-4 z-10">
             <div className="flex items-center space-x-3 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-                <path d="M22 10v6" />
-                <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+              {/* Polished Graduation Cap SVG */}
+              <svg viewBox="0 0 24 24" className="w-10 h-10">
+                <path fill="white" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
               </svg>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">NexLearn</h1>
-                <p className="text-[10px] uppercase tracking-wider opacity-90 -mt-1">futuristic learning</p>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none text-white">NexLearn</h1>
+                <p className="text-[10px] font-bold tracking-widest text-white opacity-90 -mt-1">futuristic learning</p>
               </div>
             </div>
           </div>
           
           <div className="relative w-full aspect-square mt-8">
             <Image 
-              src="/illustration.png" 
+              src="/login_images.jpg" 
               alt="Students learning online" 
               fill
-              className="object-contain drop-shadow-lg"
+              className="object-contain"
               priority
             />
           </div>

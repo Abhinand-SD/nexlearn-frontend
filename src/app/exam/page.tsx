@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { questionService, authService, answerService } from '@/services/api';
+import { questionService, authService, answerService, ExamData } from '@/services/api';
 import { logoutUser } from '@/redux/authSlice';
-import ExamInterface from '@/components/ExamInterface';
+import ExamInterface, { AnswerState } from '@/components/ExamInterface';
+import { AxiosError } from 'axios';
 
 export default function ExamPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [examData, setExamData] = useState<any>(null);
+  const [examData, setExamData] = useState<ExamData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -23,8 +24,9 @@ export default function ExamPage() {
         setLoading(true);
         const data = await questionService.getList();
         setExamData(data);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || 'Failed to load exam data.');
+      } catch (err: unknown) {
+        const axiosError = err as AxiosError<{ message?: string }>;
+        setError(axiosError?.response?.data?.message || 'Failed to load exam data.');
       } finally {
         setLoading(false);
       }
@@ -159,13 +161,13 @@ export default function ExamPage() {
   }
 
   // --- Render Active Exam Dashboard ---
-  const handleTestSubmit = async (answersObj: any) => {
+  const handleTestSubmit = async (answersObj: Record<number, AnswerState>) => {
     try {
       setIsSubmitting(true);
       setError('');
       
-      const payloadArray = (examData?.questions || []).map((q: any) => {
-         const qId = q.question_id || q.id;
+      const payloadArray = (examData?.questions || []).map((q) => {
+         const qId = q.question_id as number;
          const userAnswer = answersObj[qId];
          return {
             question_id: qId,
@@ -191,10 +193,11 @@ export default function ExamPage() {
         setError(response?.message || response?.data?.message || 'Failed to submit exam.');
         setHasStarted(false); // Eject back
       }
-    } catch (err: any) {
-      console.log('Submit error', err);
+    } catch (err: unknown) {
+      console.error('Submit error:', err);
+      const axiosError = err as AxiosError<{ message?: string }>;
       // Fallback alert or state error mapping can go here if the component errors out
-      setError(err?.response?.data?.message || 'Failed to submit exam.');
+      setError(axiosError?.response?.data?.message || 'Failed to submit exam.');
       setHasStarted(false); // Eject back to dashboard to display the error visually
     } finally {
       setIsSubmitting(false);

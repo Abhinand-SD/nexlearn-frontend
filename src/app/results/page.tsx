@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { authService } from '@/services/api';
+import { authService, SubmitResponse } from '@/services/api';
 import { logoutUser } from '@/redux/authSlice';
 import Cookies from 'js-cookie';
 
@@ -11,7 +11,7 @@ export default function ResultsScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<(SubmitResponse & { total_marks?: number; questions_count?: number }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -89,13 +89,13 @@ export default function ResultsScreen() {
       <header className="fixed top-0 left-0 right-0 bg-white px-8 py-3 flex justify-between items-center shadow-sm z-50">
         <div className="w-24 border border-transparent" />
         <div className="flex items-center space-x-2 justify-center flex-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#1A98B6" stroke="#1A98B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-            <path d="M22 10v6" />
-            <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+          {/* Polished Graduation Cap SVG */}
+          <svg viewBox="0 0 24 24" className="w-8 h-8 drop-shadow-md">
+            <path fill="#0993ba" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
           </svg>
-          <div className="flex flex-col justify-center">
-            <h1 className="text-xl font-bold tracking-tight text-[#0B3A5A] leading-none">NexLearn</h1>
+          <div className="flex flex-col justify-center pt-1">
+             <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text">NexLearn</h1>
+             <p className="text-[9px] font-bold tracking-widest bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text -mt-0.5">futuristic learning</p>
           </div>
         </div>
         <div className="w-24 flex justify-end">

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { authService } from '@/services/api';
 import { setUser } from '@/redux/authSlice';
 import Cookies from 'js-cookie';
+import { AxiosError } from 'axios';
 
 export default function LoginScreen() {
   const [mobile, setMobile] = useState('');
@@ -44,43 +45,43 @@ export default function LoginScreen() {
       dispatch(setUser({ mobile: fullMobileNumber }));
 
       router.push(`/verify-otp?mobile=${fullMobileNumber}`);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      setError(axiosError?.response?.data?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#040D1B] flex items-center justify-center p-4 font-sans">
-      <div className="max-w-[900px] w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[500px]">
+    <div className="min-h-screen bg-[#040D1B] flex items-center justify-center p-4 md:p-8 font-sans overflow-y-auto">
+      <div className="max-w-[900px] w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-max my-8 md:my-0">
 
         {/* Left Panel */}
-        <div className="md:w-1/2 bg-[#1A98B6] flex flex-col justify-between p-8 relative items-center text-white">
+        <div className="md:w-1/2 bg-[#0993ba] flex flex-col justify-between p-8 relative items-center text-white min-h-[400px] md:min-h-full">
           <div className="flex flex-col items-center mt-4">
             <div className="flex items-center space-x-3 mb-2">
-              {/* Simple Graduation Cap SVG replacing the lucide-react icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-                <path d="M22 10v6" />
-                <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+              {/* Polished Graduation Cap SVG */}
+              <svg viewBox="0 0 24 24" className="w-10 h-10">
+                <path fill="white" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
               </svg>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">NexLearn</h1>
-                <p className="text-[10px] uppercase tracking-wider opacity-90 -mt-1">futuristic learning</p>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none text-white">NexLearn</h1>
+                <p className="text-[10px] font-bold tracking-widest text-white opacity-90 -mt-1">futuristic learning</p>
               </div>
             </div>
           </div>
 
-          <div className="relative w-full aspect-square mt-8">
+          <div className="relative w-full h-[250px] md:h-auto md:aspect-square mt-8">
             <Image
-              src="/illustration.png"
+              src="/login_images.jpg"
               alt="Students learning online"
               fill
-              className="object-contain drop-shadow-lg"
+              className="object-contain md:object-cover mix-blend-normal"
               priority
             />
           </div>
+          
         </div>
 
         {/* Right Panel */}
@@ -96,10 +97,10 @@ export default function LoginScreen() {
                 <div className="absolute -top-2.5 left-3 bg-white px-1 text-xs text-slate-500 z-10">
                   Phone number
                 </div>
-                <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all">
-                  <div className="flex items-center px-4 py-3 bg-slate-50 border-r border-slate-200">
-                    <span className="text-lg mr-2">🇮🇳</span>
-                    <span className="text-slate-600 font-medium">+91</span>
+                <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:border-slate-800 focus-within:ring-1 focus-within:ring-slate-800 transition-all bg-white">
+                  <div className="flex items-center pl-4 pr-1 py-3 bg-white">
+                    <img src="https://flagcdn.com/in.svg" alt="India flag" className="w-5 h-auto mr-2 shadow-sm rounded-xs border border-slate-200" />
+                    <span className="text-slate-800 font-medium">+91</span>
                   </div>
                   <input
                     type="tel"

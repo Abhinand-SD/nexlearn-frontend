@@ -3,11 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+import { ExamData, OptionData } from '@/services/api';
+
+export interface AnswerState {
+  selected_option_id: number | null;
+  status: string;
+}
+
 interface ExamInterfaceProps {
-  examData: any;
+  examData: ExamData | null;
   isSubmitting: boolean;
   onLogout: () => void;
-  onSubmitTest: (answers: any) => void;
+  onSubmitTest: (answers: Record<number, AnswerState>) => void;
 }
 
 export default function ExamInterface({ examData, isSubmitting, onLogout, onSubmitTest }: ExamInterfaceProps) {
@@ -28,12 +35,9 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
     return mins * 60;
   });
 
-  const [answers, setAnswers] = useState<Record<string, {
-    selected_option_id: string | number | null;
-    status: 'unvisited' | 'not_attended' | 'attended' | 'marked_for_review' | 'answered_and_marked';
-  }>>({});
+  const [answers, setAnswers] = useState<Record<number, AnswerState>>({});
   
-  const [showComprehension, setShowComprehension] = useState(false);
+  const [isComprehensionModalOpen, setIsComprehensionModalOpen] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const questions = examData?.questions || [];
@@ -68,9 +72,9 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
     return `${m}:${s}`;
   };
 
-  const handleOptionSelect = (optionId: string | number) => {
-    setAnswers(prev => {
-      const currentStatus = prev[questionId]?.status || 'unvisited';
+  const handleOptionSelect = (optionId: number) => {
+    setAnswers((prev) => {
+      const currentStatus = prev[questionId as number]?.status || 'unvisited';
       // If we select an option, and status was just unvisited/not_attended, mark as attended
       // If it was marked_for_review, it becomes answered_and_marked
       let newStatus = currentStatus;
@@ -111,14 +115,14 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
     
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(prev => prev + 1);
-      setShowComprehension(false);
+      setIsComprehensionModalOpen(false);
     }
   };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
-      setShowComprehension(false);
+      setIsComprehensionModalOpen(false);
     }
   };
 
@@ -138,7 +142,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
     
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(prev => prev + 1);
-      setShowComprehension(false);
+      setIsComprehensionModalOpen(false);
     }
   };
 
@@ -149,14 +153,14 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
       if (currentAns.status === 'unvisited') {
         return {
           ...prev,
-          [questionId]: { ...currentAns, status: currentAns.selected_option_id ? 'attended' : 'not_attended' }
+          [questionId as number]: { ...currentAns, status: currentAns.selected_option_id ? 'attended' : 'not_attended' }
         };
       }
       return prev;
     });
     
     setCurrentIndex(index);
-    setShowComprehension(false);
+    setIsComprehensionModalOpen(false);
   };
 
   const handleFinalSubmit = () => {
@@ -178,13 +182,13 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
         </div>
         
         <div className="flex items-center space-x-2 justify-center flex-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#1A98B6" stroke="#1A98B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21.42 10.922a2 2 0 0 1-.019 3.838L12.83 19.818a2 2 0 0 1-1.66 0L2.6 14.76a2 2 0 0 1-.02-3.839L11.17 6.182a2 2 0 0 1 1.66 0z" />
-            <path d="M22 10v6" />
-            <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />
+          {/* Polished Graduation Cap SVG */}
+          <svg viewBox="0 0 24 24" className="w-8 h-8 drop-shadow-md">
+            <path fill="#0993ba" d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM5 13.18V17.18C5 17.18 8.5 20.18 12 20.18C15.5 20.18 19 17.18 19 17.18V13.18L12 17L5 13.18Z" />
           </svg>
-          <div className="flex flex-col justify-center">
-            <h1 className="text-lg font-bold tracking-tight text-[#0B3A5A] leading-none">NexLearn</h1>
+          <div className="flex flex-col justify-center pt-1">
+             <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text">NexLearn</h1>
+             <p className="text-[9px] font-bold tracking-widest bg-linear-to-r from-cyan-600 to-cyan-900 text-transparent bg-clip-text -mt-0.5">futuristic learning</p>
           </div>
         </div>
 
@@ -217,7 +221,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
             {/* Comprehension Toggle */}
             {currentQuestion.comprehension && (
               <button 
-                onClick={() => setShowComprehension(!showComprehension)}
+                onClick={() => setIsComprehensionModalOpen(true)}
                 className="mb-6 bg-[#1A98B6] hover:bg-[#158099] text-white text-sm font-medium px-4 py-2 rounded-md shadow flex items-center transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -241,12 +245,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
             <div className="space-y-4">
               <p className="text-xs text-slate-400 uppercase tracking-widest font-medium mb-3">Choose the answer:</p>
               
-              {(currentQuestion.options || [
-                {id: 1, option: 'Pataliputra'}, 
-                {id: 2, option: 'Harappa'}, 
-                {id: 3, option: 'Mohenjo-Daro'}, 
-                {id: 4, option: 'Lothal'}
-              ]).map((opt: any, idx: number) => {
+              {(currentQuestion.options || []).map((opt: OptionData, idx: number) => {
                 const isSelected = answers[questionId]?.selected_option_id === opt.id;
                 return (
                   <label 
@@ -255,7 +254,7 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
                       isSelected ? 'border-[#1C2A39] bg-slate-50' : 'border-slate-200 hover:border-slate-400'
                     }`}
                   >
-                    <span className="text-slate-700 font-medium">{opt.option || opt.text || opt.option_text || opt}</span>
+                    <span className="text-slate-700 font-medium">{opt.option || opt.text || opt.option_text}</span>
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ml-4 ${
                       isSelected ? 'border-[#1C2A39]' : 'border-slate-300'
                     }`}>
@@ -274,32 +273,31 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
                 );
               })}
             </div>
-          </div>
-
-          {/* Footer Controls */}
-          <div className="bg-[#F8FAFC] border-t border-slate-200 px-6 py-4 flex items-center gap-3 shrink-0">
-            <button 
-              onClick={handleMarkForReview}
-              className="bg-[#6f1d5d] hover:bg-[#581649] text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-sm whitespace-nowrap"
-            >
-              Mark for review
-            </button>
-            
-            <div className="flex-1" />
-            
-            <button 
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="bg-slate-300 hover:bg-slate-400 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-medium transition-colors shadow-sm"
-            >
-              Previous
-            </button>
-            <button 
-              onClick={handleNext}
-              className="bg-[#1C2A39] hover:bg-slate-800 text-white px-8 py-3 rounded-lg font-medium transition-colors shadow-sm"
-            >
-              Next
-            </button>
+            {/* Action Buttons (Inside flow) */}
+            <div className="mt-10 flex items-center gap-2 sm:gap-4 shrink-0 overflow-x-auto pb-2 custom-scrollbar">
+              <button 
+                onClick={handleMarkForReview}
+                className="bg-[#6f1d5d] hover:bg-[#581649] text-white px-4 sm:px-6 py-3 rounded-lg font-medium transition-colors shadow-sm whitespace-nowrap flex-1 md:flex-none text-sm"
+              >
+                Mark for review
+              </button>
+              
+              <div className="hidden md:block flex-1" />
+              
+              <button 
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 sm:px-8 py-3 rounded-lg font-medium transition-colors shadow-sm flex-1 md:flex-none text-sm sm:text-base"
+              >
+                Previous
+              </button>
+              <button 
+                onClick={handleNext}
+                className="bg-[#1C2A39] hover:bg-slate-800 text-white px-6 sm:px-8 py-3 rounded-lg font-medium transition-colors shadow-sm flex-1 md:flex-none text-sm sm:text-base"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
 
@@ -374,20 +372,20 @@ export default function ExamInterface({ examData, isSubmitting, onLogout, onSubm
       </main>
 
       {/* Comprehension Modal Overlay */}
-      {showComprehension && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-[#F8FAFC]">
-              <h3 className="font-bold text-slate-800 text-lg">Comprehensive Paragraph</h3>
-              <button onClick={() => setShowComprehension(false)} className="text-slate-500 hover:text-slate-800 transition-colors p-1">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
+      {isComprehensionModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+              <h3 className="font-semibold text-slate-800 text-lg">Comprehensive Paragraph</h3>
             </div>
-            <div className="p-6 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-base space-y-4 whitespace-pre-wrap">
+            <div className="p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-[15px] space-y-4 whitespace-pre-wrap">
               {currentQuestion.comprehension || "No comprehension text provided for this fragment."}
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 bg-[#F8FAFC] flex justify-end">
-              <button onClick={() => setShowComprehension(false)} className="bg-[#1C2A39] text-white px-8 py-2.5 rounded-lg shadow font-medium">
+            <div className="px-8 py-5 bg-white flex justify-end">
+              <button 
+                onClick={() => setIsComprehensionModalOpen(false)} 
+                className="bg-[#1C2A39] hover:bg-slate-800 text-white w-48 py-3 rounded-lg shadow-sm font-medium transition-colors"
+              >
                 Minimize
               </button>
             </div>
