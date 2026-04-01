@@ -21,6 +21,20 @@ function VerifyOtpContent() {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resendTimer, setResendTimer] = useState<number>(59);
+  const [canResend, setCanResend] = useState<boolean>(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   useEffect(() => {
     // 1. Kick out authenticated users back to their active session
@@ -96,6 +110,8 @@ function VerifyOtpContent() {
       const formattedMobile = `+91${cleanNumber}`;
 
       await authService.sendOtp(formattedMobile);
+      setResendTimer(30);
+      setCanResend(false);
       // Optional: Show a brief success message
       alert('OTP resent successfully!');
     } catch (err: unknown) {
@@ -177,9 +193,14 @@ function VerifyOtpContent() {
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-sm font-semibold text-slate-800 hover:text-slate-600 underline underline-offset-2"
+                    disabled={!canResend || loading}
+                    className={`text-sm font-semibold transition-colors ${
+                      !canResend || loading
+                        ? 'text-slate-400 cursor-not-allowed opacity-70'
+                        : 'text-slate-800 hover:text-slate-600 underline underline-offset-2'
+                    }`}
                   >
-                    Resend code
+                    {canResend ? 'Resend OTP' : `Resend OTP in 00:${resendTimer.toString().padStart(2, '0')}`}
                   </button>
                 </div>
               </div>
